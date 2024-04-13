@@ -163,7 +163,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
           <span className="hidden text-xs font-bold md:block">Columns</span>
         </div>
         {columnDialog && (
-          <div className="relative z-10 mt-2 top-11 right-28">
+          <div className="relative z-20 mt-2 top-11 right-28">
             <div
               ref={dialogRef}
               className={`absolute bg-white font-medium w-48 p-4 border capitalize  `}
