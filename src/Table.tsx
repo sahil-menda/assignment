@@ -14,15 +14,15 @@ function Table({ tableData }: { tableData: UserData[] }) {
   const [totalPages, setTotalPages] = useState(tableData.length / pageSize);
   const [columnDialog, setColumnDialog] = useState(false);
   const dialogRef: React.RefObject<HTMLDivElement> = useRef(null);
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      dialogRef.current &&
+      !dialogRef.current.contains(event.target as Node)
+    ) {
+      setColumnDialog(false);
+    }
+  };
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dialogRef.current &&
-        !dialogRef.current.contains(event.target as Node)
-      ) {
-        setColumnDialog(false);
-      }
-    };
     if (columnDialog) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
@@ -136,16 +136,17 @@ function Table({ tableData }: { tableData: UserData[] }) {
   }, [filterInput]);
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col p-4 mx-8 my-4 border border-gray-400 rounded-md shadow-lg">
+      <div className="flex flex-col justify-between md:flex-row">
       <div className="px-2">
-        <p className="text-lg font-medium">User Data</p>
-        <p className="text-xs font-medium">
+        <p className="font-medium ">User Data</p>
+        <p className="text-xs font-medium text-neutral-500">
           {dataToBePassed.length} results
         </p>
       </div>
-      <div className="flex flex-row justify-end">
+      <div className="flex flex-row">
         <div
-          className={`flex flex-row items-center w-24 p-2 m-4 border-2 cursor-pointer h-9 ${
+          className={`flex flex-row items-center rounded-md w-fit p-2 m-4 border-2 cursor-pointer h-9 ${
             columnDialog ? "bg-blue-950 text-white" : "bg-white"
           }`}
           onClick={() => {
@@ -156,10 +157,10 @@ function Table({ tableData }: { tableData: UserData[] }) {
         >
           <Icon
             icon="fluent:column-triple-edit-20-regular"
-            width="24"
-            className="mr-2"
+            width="18"
+            className="mr-0 md:mr-2"
           />
-          <span className="text-xs font-bold ">Columns</span>
+          <span className="hidden text-xs font-bold md:block">Columns</span>
         </div>
         {columnDialog && (
           <div className="relative z-10 mt-2 top-11 right-28">
@@ -183,8 +184,8 @@ function Table({ tableData }: { tableData: UserData[] }) {
             </div>
           </div>
         )}
-        <div className="flex flex-row items-center p-2 m-4 border-2 rounded-md w-72 h-9">
-          <Icon icon="fe:search" width="24" className="mr-2 " />
+        <div className="flex flex-row items-center p-2 my-4 mr-2 border-2 rounded-md h-9">
+          <Icon icon="fe:search" width="24" className="mr-2" />
           <input
             type="text"
             value={filterInput}
@@ -193,20 +194,23 @@ function Table({ tableData }: { tableData: UserData[] }) {
             placeholder="Search"
           ></input>
         </div>
+        </div>
+        
       </div>
-      <div className="px-2">
-        <table className={`w-full table-space overflow-auto`}>
-          <thead>
+      <div className="">
+        <div className="overflow-x-scroll h-[400px] border border-gray-500  rounded-md bg-white">
+        <table className={`w-full table-space overflow-y-scroll `}>
+        <thead className="sticky z-10 bg-gray-200 -top-1 ">
             <tr className="text-xs font-bold">
               {headersToBePassed.map((header) => (
                 <th
                   key={header}
-                  className="relative h-2 py-2 border border-black min-w-[100px] max-w-fit"
+                  className="relative h-2 py-2 min-w-[100px] max-w-fit hover:cursor-pointer "
+                  onClick={() => handleColumnHeaderClick(header)}
                 >
                   <div className="flex items-center justify-center capitalize">
+                  <div className="w-4"></div>
                     <span
-                      className="hover:cursor-pointer"
-                      onClick={() => handleColumnHeaderClick(header)}
                     >
                       {header}
                     </span>
@@ -232,16 +236,13 @@ function Table({ tableData }: { tableData: UserData[] }) {
               dataToBePassed.map((item, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className={`text-xs font-medium ${
-                    rowIndex === dataToBePassed.length - 1 &&
-                    "border-b border-black"
-                  }`}
+                  className={`text-xs hover:bg-gray-200 font-medium`}
                 >
                   {headersToBePassed.map((header) => (
                     <>
                       <td
                         key={header}
-                        className="py-2 text-center border-black border-x min-w-fit whitespace-nowrap"
+                        className={`py-2 text-center min-w-fit whitespace-nowrap`}
                       >
                         {typeof item[header] === "object" &&
                         item[header] instanceof Date
@@ -254,6 +255,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
               ))}
           </tbody>
         </table>
+        </div>
         <div className="flex flex-row justify-between my-4">
           <BasicMenu
             defaultValue={pageSize}

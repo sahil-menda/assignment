@@ -12,12 +12,12 @@ function Pagination({ currentPage,totalPages, onPageChange }: PaginationProps) {
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-1">
       {Array.from({ length: totalPages }, (_, index) => (
         <button
           key={index}
           onClick={() => handlePageChange(index + 1)}
-          className={`px-2 py-1 mx-1 ${
+          className={`w-min px-1 h-min ${
             currentPage === index + 1
               ? 'bg-blue-500 text-white'
               : 'bg-gray-200 text-gray-600'
