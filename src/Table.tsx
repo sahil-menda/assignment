@@ -87,13 +87,10 @@ function Table({ tableData }: { tableData: UserData[] }) {
           .includes(filterInput.toLowerCase());
       })
     );
-    const firstPageIndex = (currentPage - 1) * pageSize;
-    const lastPageIndex = firstPageIndex + pageSize;
-    const filteredSliceData = filteredData.slice(firstPageIndex, lastPageIndex);
-    const sorted = multiColumnSort(filteredSliceData, sortingState);
+    const sorted = multiColumnSort(tableData, sortingState);
     setTotalPages(Math.ceil(filteredData.length / pageSize));
     setDataToBePassed(sorted);
-  }, [tableData, currentPage, pageSize, sortingState, filterInput]);
+  }, [tableData, pageSize, sortingState, filterInput]);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     headersToBePassed.headers
   );
@@ -178,7 +175,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
               ref={dialogRef}
               className={`absolute bg-white font-medium w-48 p-4 border capitalize  `}
             >
-              {(Object.keys(tableData[0]) as (keyof UserData)[]).map(
+              {originalHeaders.map(
                 (column) => (
                   <div key={column} className="flex items-center ">
                     <input
