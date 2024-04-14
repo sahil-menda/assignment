@@ -88,9 +88,12 @@ function Table({ tableData }: { tableData: UserData[] }) {
       })
     );
     const sorted = multiColumnSort(tableData, sortingState);
+    const firstPageIndex = (currentPage - 1) * pageSize;
+    const lastPageIndex = firstPageIndex + pageSize;
+    const filteredSliceData = sorted.slice(firstPageIndex, lastPageIndex);
     setTotalPages(Math.ceil(filteredData.length / pageSize));
-    setDataToBePassed(sorted);
-  }, [tableData, pageSize, sortingState, filterInput]);
+    setDataToBePassed(filteredSliceData);
+  }, [tableData, sortingState, currentPage, pageSize, filterInput]);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     headersToBePassed.headers
   );
@@ -100,18 +103,18 @@ function Table({ tableData }: { tableData: UserData[] }) {
       setSelectedColumns(
         selectedColumns.filter((selectedColumn) => selectedColumn !== column)
       );
-      const filteredHeader = headersToBePassed.headers.filter(
+      const headerAfterRemoval = headersToBePassed.headers.filter(
         (header) => header !== column
       );
-      const filteredData = dataToBePassed.map((item) => {
+      const dataAfterRemoval = dataToBePassed.map((item) => {
         const newItem = { ...item };
         delete newItem[column as keyof typeof item];
         return newItem;
       });
-      setDataToBePassed(filteredData);
+      setDataToBePassed(dataAfterRemoval);
       setHeadersToBePassed({
-        headers: filteredHeader,
-        columnNumber: filteredHeader.map((header) => {
+        headers: headerAfterRemoval,
+        columnNumber: headerAfterRemoval.map((header) => {
           return headersToBePassed.columnNumber[headersToBePassed.headers.indexOf(header)];
         }),
       });
@@ -144,10 +147,10 @@ function Table({ tableData }: { tableData: UserData[] }) {
 
   return (
     <div className="flex flex-col p-4 mx-8 my-4 border border-gray-400 rounded-md shadow-lg">
-      <div className="flex flex-col justify-between md:flex-row">
-      <div className="px-2">
-        <p className="font-medium ">User Data</p>
-        <p className="text-xs font-medium text-neutral-500">
+      <div className="flex flex-col items-center justify-between align-middle md:flex-row">
+      <div className="pl-2">
+        <p className="font-bold">User Data</p>
+        <p className="text-[11px] text-neutral-500">
           {dataToBePassed.length} results
         </p>
       </div>
