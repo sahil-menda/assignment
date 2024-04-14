@@ -69,11 +69,11 @@ function Table({ tableData }: { tableData: UserData[] }) {
   };
 
   const [dataToBePassed,setDataToBePassed] =  useState(tableData);
-  const allHeaders: (keyof UserData)[] =
+  const originalHeaders: (keyof UserData)[] =
   tableData.length > 0
     ? (Object.keys(tableData[0]) as (keyof UserData)[])
     : [];
-  const [headersToBePassed, setHeadersToBePassed] = useState(allHeaders)
+  const [headersToBePassed, setHeadersToBePassed] = useState({headers: originalHeaders, columnNumber: originalHeaders.map((_,index)=> index + 1 )})
   useMemo(() => {
     const filteredData = tableData.filter((item) =>
       Object.values(item).some((value) => {
@@ -95,7 +95,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
     setDataToBePassed(sorted);
   }, [tableData, currentPage, pageSize, sortingState, filterInput]);
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    headersToBePassed
+    headersToBePassed.headers
   );
   const handleColumnToggle = (column: string) => {
     const isSelected = selectedColumns.includes(column);
@@ -103,7 +103,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
       setSelectedColumns(
         selectedColumns.filter((selectedColumn) => selectedColumn !== column)
       );
-      const filteredHeader = headersToBePassed.filter(
+      const filteredHeader = headersToBePassed.headers.filter(
         (header) => header !== column
       );
       const filteredData = dataToBePassed.map((item) => {
@@ -112,12 +112,19 @@ function Table({ tableData }: { tableData: UserData[] }) {
         return newItem;
       });
       setDataToBePassed(filteredData);
-      setHeadersToBePassed(filteredHeader);
+      setHeadersToBePassed({
+        headers: filteredHeader,
+        columnNumber: filteredHeader.map((header) => {
+          return headersToBePassed.columnNumber[headersToBePassed.headers.indexOf(header)];
+        }),
+      });
     } else {
-      const updatedHeader = [
-        ...headersToBePassed,
-        column as keyof UserData,
-      ];
+      const updatedHeader = [...headersToBePassed.headers];
+      const updatedColumnNumber = [...headersToBePassed.columnNumber];
+      const columnIndex = originalHeaders.indexOf(column as keyof UserData);
+      updatedHeader.splice(columnIndex, 0, column as keyof UserData);
+      updatedColumnNumber.splice(columnIndex, 0, columnIndex + 1);
+  
       const columnData = tableData.map(
         (item) => item[column as keyof typeof item]
       );
@@ -126,11 +133,14 @@ function Table({ tableData }: { tableData: UserData[] }) {
         [column]: columnData[index],
       }));
       setDataToBePassed(updatedData);
-      setHeadersToBePassed(updatedHeader);
+      setHeadersToBePassed({
+        headers: updatedHeader,
+        columnNumber: updatedColumnNumber,
+      });
       setSelectedColumns([...selectedColumns, column]);
     }
   };
-
+  
   useEffect(() => {
     setCurrentPage(1);
   }, [filterInput]);
@@ -202,7 +212,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
         <table className={`w-full table-space overflow-y-scroll `}>
         <thead className="sticky z-10 bg-gray-200 -top-1 ">
             <tr className="text-xs font-bold">
-              {headersToBePassed.map((header) => (
+              {headersToBePassed.headers.map((header) => (
                 <th
                   key={header}
                   className="relative h-2 py-2 min-w-[100px] max-w-fit hover:cursor-pointer "
@@ -238,7 +248,7 @@ function Table({ tableData }: { tableData: UserData[] }) {
                   key={rowIndex}
                   className={`text-xs hover:bg-gray-200 font-medium`}
                 >
-                  {headersToBePassed.map((header) => (
+                  {headersToBePassed.headers.map((header) => (
                     <>
                       <td
                         key={header}
