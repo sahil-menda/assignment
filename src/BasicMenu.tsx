@@ -25,11 +25,11 @@ function BasicMenu({
   return (
     <div className="relative">
       <button
-        className="w-12 h-10 text-sm border rounded-md"
+        className="text-sm border rounded-md h-9 w-9"
         onClick={handleClick}
       >
         <span>{selectedOption}</span>
-        <span className="ml-1">▼</span>
+        <span className="ml-[1px]">▼</span>
       </button>
   
       {isOpen && (
@@ -37,7 +37,7 @@ function BasicMenu({
           {options.map((option, index) => (
             <li
               key={index}
-              className="flex items-center justify-center w-12 h-10 text-sm rounded-md cursor-pointer"
+              className="flex items-center justify-center text-xs rounded-md cursor-pointer h-9 w-9"
               onClick={() => handleOptionChange(option)}
             >
               {option}
