@@ -78,7 +78,8 @@ function Table({ tableData }: { tableData: UserData[] }) {
     columnNumber: originalHeaders.map((_, index) => index + 1),
   });
   useMemo(() => {
-    const filteredData = tableData.filter((item) =>
+    const sorted = multiColumnSort(tableData, sortingState);
+    const filteredData = sorted.filter((item) =>
       Object.values(item).some((value) => {
         const finalValue =
           typeof value === "object" && value instanceof Date
@@ -90,10 +91,9 @@ function Table({ tableData }: { tableData: UserData[] }) {
           .includes(filterInput.toLowerCase());
       })
     );
-    const sorted = multiColumnSort(tableData, sortingState);
     const firstPageIndex = (currentPage - 1) * pageSize;
     const lastPageIndex = firstPageIndex + pageSize;
-    const filteredSliceData = sorted.slice(firstPageIndex, lastPageIndex);
+    const filteredSliceData = filteredData.slice(firstPageIndex, lastPageIndex);
     setTotalPages(Math.ceil(filteredData.length / pageSize));
     setDataToBePassed(filteredSliceData);
   }, [tableData, sortingState, currentPage, pageSize, filterInput]);
